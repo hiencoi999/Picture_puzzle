@@ -1,0 +1,20 @@
+# depslib dependency file v1.0
+1586531212 source:d:\testsdl\main.cpp
+	<iostream>
+	<string>
+	<SDL.h>
+	<SDL_image.h>
+	<ctime>
+	<vector>
+
+1585747230 d:\testsdl\background.h
+	<SDL.h>
+	<SDL_image.h>
+	<string>
+	<stdio.h>
+
+1585747230 source:d:\testsdl\background.cpp
+	<SDL.h>
+	<SDL_image.h>
+	"Background.h"
+

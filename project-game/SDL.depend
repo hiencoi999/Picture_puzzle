@@ -1,0 +1,23 @@
+# depslib dependency file v1.0
+1586619622 source:d:\sdl\main.cpp
+	<iostream>
+	<stdio.h>
+	<SDL.h>
+	<string>
+	<SDL_image.h>
+	<vector>
+	<ctime>
+	<thread>
+	<chrono>
+
+1585988921 d:\sdl\painter.h
+	<string>
+	<SDL.h>
+
+1585988909 source:d:\sdl\painter.cpp
+	<cmath>
+	<cstdlib>
+	<iostream>
+	<SDL_image.h>
+	"painter.h"
+

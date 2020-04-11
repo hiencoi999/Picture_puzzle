@@ -1,0 +1,7 @@
+# depslib dependency file v1.0
+1586098383 source:d:\verycool\main.cpp
+	<iostream>
+	<string>
+	<SDL.h>
+	<SDL_image.h>
+
