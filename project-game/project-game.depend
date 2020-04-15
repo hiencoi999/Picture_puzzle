@@ -1,0 +1,12 @@
+# depslib dependency file v1.0
+1586834454 source:d:\project-game\main.cpp
+	<iostream>
+	<stdio.h>
+	<SDL.h>
+	<string>
+	<SDL_image.h>
+	<vector>
+	<ctime>
+	<thread>
+	<chrono>
+
