@@ -1,343 +1,241 @@
 #include <iostream>
-#include <stdio.h>
 #include <SDL.h>
 #include <string>
 #include <SDL_image.h>
-#include <vector>
 #include <ctime>
-#include <thread>
-#include <chrono>
+#include <cstdlib>
+#include "Texture.h"
+#include "Window.h"
 
 using namespace std;
 
-const int SCREEN_WIDTH = 400;
-const int SCREEN_HEIGHT = 400;
-
-const string Object[] = {"images//Blue.png", "images//Red.png", "images//Yellow.png", "images//Purple.png",
-                        "images//Orange.png", "images//Green.png"};
-
-//Starts up SDL and creates window
-bool init();
-
-//Loads media
-bool loadMedia();
-
-void ApplyTexture(SDL_Renderer* renderer, SDL_Texture* texture, int _x1, int _y1, int _x2, int _y2);
-
-void DeleteColor(Uint8 alpha);
-
-void ExChange(int arr[8][8], int temp[8][8] );
-
-//Frees media and shuts down SDL
-
-void close();
-//Loads individual image as texture
-SDL_Texture* loadTexture( std::string path );
-
-//The window we'll be rendering to
+const int SPACE = 50;
+const int NUM_OF_ROWS = 4;
+const int NUM_OF_COLS = 4;
 SDL_Window* gWindow = NULL;
-
-//The window renderer
 SDL_Renderer* gRenderer = NULL;
 
-//Current displayed texture
-SDL_Texture* gTexture = NULL;
+SDL_Texture* gMenu = NULL;
+SDL_Texture* loadingImage1 = NULL;
+SDL_Texture* loadingImage2 = NULL;
+SDL_Texture* win = NULL;
+SDL_Texture* background = NULL;
+//Đưa tên các ảnh vào 1 mảng string để load
+const string Object[] = {"images//1.jpg", "images//2.jpg", "images//3.jpg", "images//4.jpg",
+"images//5.jpg", "images//6.jpg", "images//7.jpg", "images//8.jpg", "images//9.jpg", "images//10.jpg",
+"images//11.jpg", "images//12.jpg", "images//13.jpg", "images//14.jpg", "images//15.jpg", "images//16.jpg"};
 
-SDL_Texture* EMPTY = NULL;
+struct Images
+{
+    SDL_Texture* gImage = NULL;
+    int Count;
+}grid[4][4];
 
-vector <vector<SDL_Texture* > > gPNG;
+//Hàm tạo game với các ảnh đã được đánh tráo
+void CreateGame();
 
-
+//Hàm thực hiện nội dung chính của game
+void Game();
 
 
 int main(int argc, char* argv[])
 {
     srand(time(0));
-
-    Uint8 alpha = 255;
-    const int FPS = 60;
-    const int frameDelay = 1000/60;
-
-    Uint32 frameStart;
-    int frameTime;
-    //Main loop flag
-    if(init() == NULL)
+    SDL_Event e;
+    //Vòng lặp game
+    if(init(gWindow, gRenderer) == NULL)
         return 0;
     else {
-        if(loadMedia()){
-            bool quit = false;
+        //Khởi tạo các hình ảnh và tạo game
+        CreateGame();
 
-            //Event handler
-            SDL_Event e;
+        while(1){
+            while(SDL_PollEvent( &e ) != 0){
+            if( e.type == SDL_QUIT )
+                    {
+                        return 0;
+                    }
+            }
+            //Load menu
+            SDL_RenderClear(gRenderer);
+            SDL_RenderCopy(gRenderer, gMenu, NULL, NULL);
+            SDL_RenderPresent(gRenderer);
 
-            int arr[8][8], temp[8][8];
-			bool isRunning;
-			gPNG.resize(8);
-			for(int i=0;i<8;i++)
-            {
-                gPNG[i].resize(8);
-                for(int j=0;j<8;j++)
-                {
-                    int tmp = rand() % 6;
-                    arr[i][j] = tmp;
-                    gPNG[i][j] = loadTexture(Object[tmp]);
 
-                }
+            if(e.type == SDL_MOUSEBUTTONDOWN){
+                if(e.button.button == SDL_BUTTON_LEFT)
+                    Game();
             }
 
+        }
+//            SDL_RenderClear(gRenderer);
+//            SDL_RenderCopy(gRenderer, gMenu,NULL,NULL);
+//            SDL_RenderPresent(gRenderer);
+//            SDL_Delay(5000);
+
+    }
+}
+
+void CreateGame()
+{
+    int tmp = 0;
+    //Load ảnh và tạo blendmode cho ảnh
+    for(int i=0;i<NUM_OF_ROWS;i++){
+        for(int j=0;j<NUM_OF_COLS;j++){
+            grid[i][j].gImage = loadTexture(Object[tmp], gRenderer);
+            grid[i][j].Count = tmp;// Lưu tmp của 16 hình ảnh vào mảng Count dùng để kiểm tra xem nếu người chơi win game
+            SDL_SetTextureBlendMode(grid[i][j].gImage, SDL_BLENDMODE_BLEND);
+            tmp++;
+        }
+    }
+    //Tráo đổi ảnh ngẫu nhiên(đồng thời phải tráo đổi cả Count)
+    for(int i=0;i<NUM_OF_ROWS;i++){
+        for(int j=0;j<NUM_OF_COLS;j++){
+                int temp1 = rand()%3; int temp2 = rand()%3;
+            swap(grid[i][j].gImage, grid[temp1][temp2].gImage);
+            swap(grid[i][j].Count, grid[temp1][temp2].Count);
+        }
+    }
+    //Kiểm tra mảng Count
+    for(int i=0;i<NUM_OF_ROWS;i++){
+                        for(int j=0;j<NUM_OF_COLS;j++){
+                            cout << grid[i][j].Count << " ";
+                        }
+                        cout << endl;
+                    }
+    //Load 2 ảnh menu để tạo hiệu ứng nhấp nháy
+    loadingImage1 = loadTexture("images//loading1.png", gRenderer);
+    SDL_SetTextureBlendMode(loadingImage1, SDL_BLENDMODE_BLEND);
+    loadingImage2 = loadTexture("images//loading2.png", gRenderer);
+    SDL_SetTextureBlendMode(loadingImage2, SDL_BLENDMODE_BLEND);
+
+    //Load ảnh menu
+    gMenu = loadTexture("images//menu.jpg", gRenderer);
+
+    //Load background
+    background = loadTexture("images//bg2.png", gRenderer);
+
+    //Load ảnh khi win game
+    win = loadTexture("images//win.png", gRenderer);
+}
+
+void Game()
+{
+    bool quit = false;
+
+            int xMouse, yMouse, xMouse1, yMouse1, xMouse2, yMouse2, click = 0, num = 0, sum = 0, unknow = 1;
+            bool isSwap = false, isTrue = false, isWin = false;
+            int alpha = 255;
 
 
+            while( !quit )
+            {
+                SDL_Event e;
 
-                //While application is running
-                while( !quit )
+                while( SDL_PollEvent( &e ) != 0 )
                 {
 
-                    frameStart = SDL_GetTicks();
-
-
-                    //Handle events on queue
-                    while( SDL_PollEvent( &e ) != 0 )
+                    if( e.type == SDL_QUIT )
                     {
-                        //User requests quit
-                        if( e.type == SDL_QUIT )
-                        {
+                        quit = true;
+
+                    }
+                    if(isSwap){
+                        for(int i=0;i<NUM_OF_ROWS;i++){
+                            for(int j=0;j<NUM_OF_COLS;j++){
+                                if(grid[i][j].Count != 4*i+j){
+                                    isWin = false;
+                                    break;
+                                }
+                                else isWin = true;
+                            }
+                        }
+                    }
+                        if(isWin == true){
+                            SDL_RenderClear(gRenderer);
+                            SDL_RenderCopy(gRenderer, win,NULL,NULL);
+                            SDL_RenderPresent(gRenderer);
+                            SDL_Delay(2000);
                             quit = true;
                         }
 
 
 
-                        if(e.type == SDL_MOUSEBUTTONDOWN )
-                            if(e.button.button == SDL_BUTTON_LEFT && e.button.x < 50 && e.button.y < 50){
 
-                                for(int i=50;i>0;i--){
-                                    alpha-=5;
-                                }
-
-
-
-                            if(e.button.button == SDL_BUTTON_LEFT)
-                                swap(gPNG[0][0], gPNG[0][1]);
-//                                 this_thread::sleep_for(chrono::milliseconds(1000));
-                            }
-
+                    if(!isTrue){
+                        for(int i=0;i<alpha/2;i++){
+                            SDL_SetTextureAlphaMod(loadingImage1, i);
+                            SDL_SetTextureAlphaMod(loadingImage2, i);
+                            if(i%2==0)
+                                SDL_RenderCopy(gRenderer, loadingImage1, NULL, NULL);
+                            else
+                                SDL_RenderCopy(gRenderer, loadingImage2, NULL, NULL);
+                            SDL_RenderPresent(gRenderer);
+                            SDL_Delay(100);
+                        }
+                        isTrue = true;
                     }
 
 
-                    do{
+                    if(e.type == SDL_MOUSEMOTION){
+                        for(int i=0;i<NUM_OF_ROWS;i++){
+                            for(int j=0;j<NUM_OF_COLS;j++){
+                                if(e.button.y > i*SIZE_1_GRID+SPACE && e.button.y < (i+1)*SIZE_1_GRID+SPACE
+                                   && e.button.x > j*SIZE_1_GRID+SPACE && e.button.x < (j+1)*SIZE_1_GRID+SPACE){
 
-                        do {
-                            isRunning = false;
+                                        SDL_SetTextureAlphaMod(grid[i][j].gImage, alpha/2);
+                                }
+                                else SDL_SetTextureAlphaMod(grid[i][j].gImage, alpha);
+                            }
+                        }
 
+                    }
 
-                            // Duyet theo hang ngang
-                            for(int i=0;i<8;i++){
-                                for(int j=0;j<6;j++){
-                                    if(arr[i][j] == arr[i][j+1] && arr[i][j] == arr[i][j+2]) {
-                                        temp[i][j] = 10;
-                                        temp[i][j+1] = 10;
-                                        if(arr[i][j+2] == arr[i][j+3]){
-                                            temp[i][j+2] = 10;
-                                            if(arr[i][j+3] == arr[i][j+4])
-                                                temp[i][j+3] = 10; temp[i][j+4] = 10;
-                                        }
-                                        else
-                                            temp[i][j+2] = 10;
+                    if(e.type == SDL_MOUSEBUTTONDOWN ){
+                            if(e.button.button == SDL_BUTTON_LEFT){
+//                                if(!isSwap){
+                                    if(e.button.x > SPACE && e.button.x < SCREEN_WIDTH-SPACE &&
+                                       e.button.y > SPACE && e.button.y < SCREEN_HEIGHT-SPACE){
+                                    click++;
+                                    SDL_GetMouseState(&xMouse, &yMouse);
+//                                    cout << xMouse << " " << yMouse << endl;
                                     }
+//                                }
+                                if(click == 1){
+                                    xMouse1 = (xMouse-SPACE)/SIZE_1_GRID;
+                                    yMouse1 = (yMouse-SPACE)/SIZE_1_GRID;
+//                                    cout << xMouse1 << " " << yMouse1 << endl;
+                                }
+                                if(click == 2){
+                                    xMouse2= (xMouse-SPACE)/SIZE_1_GRID;
+                                    yMouse2=(yMouse-SPACE)/SIZE_1_GRID;
+//                                    cout << xMouse2 << " " << yMouse2 << endl;
+
+                                    swap(grid[yMouse1][xMouse1], grid[yMouse2][xMouse2]);
+                                    click = 0;
+                                    isSwap = true;
                                 }
                             }
 
-                            // Duyet theo hang doc
-                            for(int i=0;i<6;i++){
-                                for(int j=0;j<8;j++){
-                                    if(arr[i][j] == arr[i+1][j] && arr[i][j] == arr[i+2][j]) {
-                                        temp[i][j] = 10;
-                                        temp[i+1][j] = 10;
-                                        if(arr[i+2][j] == arr[i+3][j]){
-                                            temp[i+2][j] = 10;
-                                            if(arr[i+3][j] == arr[i+4][j])
-                                                temp[i+3][j] = 10; temp[i+4][j] = 10;
-                                        }
-                                        else
-                                            temp[i+2][j] = 10;
-                                    }
-                                }
-                            }
-
-                            // Xoa object va tao object moi
-                            for(int k=0;k<8;k++){
-                                for(int i=0;i<8;i++){
-                                    for(int j=0;j<8;j++){
-                                        if(temp[0][j] == 10 ) {
-                                            temp[0][j] = rand() % 6;
-                                            gPNG[0][j] = loadTexture(Object[temp[0][j]]);
-                                            isRunning = true;
-                                        }
-                                        if(temp[i][j] == 10) {
-                                            for(int a=255;a>0;a-=5){
-                                            this_thread::sleep_for(chrono::milliseconds(10));
-                                            SDL_SetTextureAlphaMod(gPNG[i][j], a);
-                                            }
-                                            swap(temp[i][j], temp[i - 1][j]);
-
-                                            swap(gPNG[i][j], gPNG[i-1][j]);
-
-                                            isRunning = true;
-                                        }
-                                    }
-                                }
-                            }
-
-                            for(int i=0;i<8;i++){
-                                for(int j=0;j<8;j++){
-                                    arr[i][j] = temp[i][j];
-                                }
-                            }
-                        }while(isRunning);
-
-                    }while(isRunning);
-
+                    }
 
                     //Clear screen
                     SDL_RenderClear( gRenderer );
 
-                    DeleteColor(alpha);
+                    SDL_RenderCopy(gRenderer, background, NULL, NULL);
+                    for(int i=0;i<NUM_OF_ROWS;i++){
+                        for(int j=0;j<NUM_OF_COLS;j++){
+                            ApplyTexture(gRenderer, grid[i][j].gImage, 0, 0, j*SIZE_1_GRID+SPACE, i*SIZE_1_GRID+SPACE);
 
-                    //Render texture to screen
-                    SDL_RenderCopy( gRenderer, gTexture, NULL, NULL );
-
-                    for(int i=0;i<8;i++){
-                        for(int j=0;j<8;j++){
-                            ApplyTexture(gRenderer, gPNG[i][j], 0, 0, j*50, i*50);
                         }
                     }
 
-                    //Update screen
+                    //Cập nhật màn hình
                     SDL_RenderPresent( gRenderer );
 
-                    frameTime = SDL_GetTicks() - frameStart;
-                    if(frameDelay > frameTime){
-                        SDL_Delay(frameDelay-frameTime);
-                    }
+
                 }
             }
-    }
-    close();
-}
 
-SDL_Texture* loadTexture( std::string path )
-{
-    //The final texture
-    SDL_Texture* newTexture = NULL;
-
-    //Load image at specified path
-    SDL_Surface* loadedSurface = IMG_Load( path.c_str() );
-    if( loadedSurface == NULL )
-    {
-        printf( "Unable to load image %s! SDL_image Error: %s\n", path.c_str(), IMG_GetError() );
-    }
-    else
-    {
-        //Create texture from surface pixels
-        newTexture = SDL_CreateTextureFromSurface( gRenderer, loadedSurface );
-        if( newTexture == NULL )
-        {
-            printf( "Unable to create texture from %s! SDL Error: %s\n", path.c_str(), SDL_GetError() );
-        }
-
-        //Get rid of old loaded surface
-        SDL_FreeSurface( loadedSurface );
-    }
-
-    return newTexture;
-}
-bool init()
-{
-	//Initialization flag
-	bool success = true;
-
-	//Create window
-        gWindow = SDL_CreateWindow( "CANDY", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN );
-        if( gWindow == NULL )
-        {
-            success = false;
-        }
-        else
-        {
-            //Create renderer for window
-            gRenderer = SDL_CreateRenderer( gWindow, -1, SDL_RENDERER_ACCELERATED );
-            if( gRenderer == NULL )
-            {
-                success = false;
-            }
-            else
-            {
-                //Initialize renderer color
-                SDL_SetRenderDrawColor( gRenderer, 0xFF, 0xFF, 0xFF, 0xFF );
-
-                //Initialize PNG loading
-                int imgFlags = IMG_INIT_PNG;
-                if( !( IMG_Init( imgFlags ) & imgFlags ) )
-                {
-                    success = false;
-                }
-            }
-        }
-        return success;
-}
-bool loadMedia()
-{
-    //Loading success flag
-    bool success = true;
-
-    //Load PNG texture
-    gTexture = loadTexture( "images//box.png" );
-    if( gTexture == NULL )
-    {
-        success = false;
-    }
-
-    return success;
-}
-
-
-
-
-
-void ApplyTexture(SDL_Renderer* renderer, SDL_Texture* texture, int _x1, int _y1, int _x2, int _y2)
-{
-    SDL_Rect Src;
-    SDL_Rect Dest;
-
-    Src.x = _x1;
-    Src.y = _y1;
-    Src.w = 50;
-    Src.h = 50;
-
-    Dest.x = _x2;
-    Dest.y = _y2;
-    Dest.w = 50;
-    Dest.h = 50;
-
-    SDL_RenderCopy(renderer, texture, &Src, &Dest);
-}
-
-void DeleteColor( Uint8 alpha){
-    SDL_SetTextureAlphaMod(gTexture, alpha);
-}
-
-void close()
-{
-    //Free loaded image
-    SDL_DestroyTexture( gTexture );
-    gTexture = NULL;
-
-    //Destroy window
-    SDL_DestroyRenderer( gRenderer );
-    SDL_DestroyWindow( gWindow );
-    gWindow = NULL;
-    gRenderer = NULL;
-
-    //Quit SDL subsystems
-    IMG_Quit();
-    SDL_Quit();
+    close(gWindow, gRenderer);
 }
