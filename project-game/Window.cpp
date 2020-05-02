@@ -30,15 +30,23 @@ bool init(SDL_Window* &gWindow, SDL_Renderer* &gRenderer)
                 SDL_SetRenderDrawColor( gRenderer, 0xFF, 0xFF, 0xFF, 0xFF );
             }
         }
+
+         //Initialize SDL_mixer
+        if( Mix_OpenAudio( 44100, MIX_DEFAULT_FORMAT, 2, 2048 ) < 0 )
+        {
+            cout << "SDL_mixer could not initialize! SDL_mixer Error: "<< Mix_GetError() ;
+            success = false;
+        }
         return success;
 }
 
-void close(SDL_Window* Window, SDL_Renderer* Renderer)
+void close(SDL_Window* Window, SDL_Renderer* Renderer, Mix_Music* gMusic, Mix_Chunk* clicksound)
 {
-    //Free loaded image
-//    SDL_DestroyTexture( gTexture );
-//    gTexture = NULL;
-
+    //Free the music
+    Mix_FreeMusic( gMusic );
+    gMusic = NULL;
+    Mix_FreeChunk(clicksound);
+    clicksound = NULL;
     //Destroy window
     SDL_DestroyRenderer( Renderer );
     SDL_DestroyWindow( Window );
@@ -46,8 +54,8 @@ void close(SDL_Window* Window, SDL_Renderer* Renderer)
     Renderer = NULL;
 
     //Quit SDL subsystems
+    Mix_Quit();
     IMG_Quit();
     SDL_Quit();
 }
-
 

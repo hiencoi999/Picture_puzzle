@@ -7,8 +7,8 @@ void ApplyTexture(SDL_Renderer* renderer, SDL_Texture* texture, int _x1, int _y1
 
     Src.x = _x1;
     Src.y = _y1;
-    Src.w = 600;
-    Src.h = 600;
+    Src.w = SIZE_1_GRID;
+    Src.h = SIZE_1_GRID;
 
     Dest.x = _x2;
     Dest.y = _y2;
@@ -43,4 +43,3 @@ SDL_Texture* loadTexture( std::string path , SDL_Renderer* &gRenderer)
 
     return newTexture;
 }
-

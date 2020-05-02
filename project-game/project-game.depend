@@ -10,3 +10,32 @@
 	<thread>
 	<chrono>
 
+1588436475 source:d:\picturepuzzle\project-game\texture.cpp
+	"Texture.h"
+
+1588436451 d:\picturepuzzle\project-game\texture.h
+	<SDL.h>
+	<iostream>
+	<SDL_image.h>
+	<string>
+
+1588436664 source:d:\picturepuzzle\project-game\main.cpp
+	<iostream>
+	<SDL.h>
+	<string>
+	<SDL_image.h>
+	<SDL_mixer.h>
+	<ctime>
+	<cstdlib>
+	"Texture.h"
+	"Window.h"
+
+1588436451 d:\picturepuzzle\project-game\window.h
+	<iostream>
+	<SDL.h>
+	<SDL_image.h>
+	<SDL_mixer.h>
+
+1588436451 source:d:\picturepuzzle\project-game\window.cpp
+	"Window.h"
+
