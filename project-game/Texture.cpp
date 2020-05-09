@@ -17,6 +17,25 @@ void ApplyTexture(SDL_Renderer* renderer, SDL_Texture* texture, int _x1, int _y1
 
     SDL_RenderCopy(renderer, texture, &Src, &Dest);
 }
+
+void ApplyMoveCount(SDL_Renderer* renderer, SDL_Texture* texture, int _w)
+{
+    SDL_Rect Src;
+    SDL_Rect Dest;
+
+    Src.x = 0;
+    Src.y = 0;
+    Src.w = 500;
+    Src.h = 25;
+
+    Dest.x = 120;
+    Dest.y = 665;
+    Dest.w = _w;
+    Dest.h = 25;
+
+    SDL_RenderCopy(renderer, texture, &Src, &Dest);
+}
+
 SDL_Texture* loadTexture( std::string path , SDL_Renderer* &gRenderer)
 {
     //The final texture
