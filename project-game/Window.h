@@ -11,3 +11,4 @@ const int SCREEN_HEIGHT = 700;
 bool init(SDL_Window* &gWindow, SDL_Renderer* &gRenderer);
 //Hàm xóa và thu hồi bộ nhớ
 void close(SDL_Window* Window, SDL_Renderer* Renderer, Mix_Music* gMusic, Mix_Chunk* clicksound);
+

@@ -49,7 +49,6 @@ int main(int argc, char* argv[])
 {
     srand(time(0));
     SDL_Event e1;
-    bool isLose_PlayAgain = false;
     //Vòng lặp game
     if(init(gWindow, gRenderer) == NULL)
         return 0;
@@ -209,6 +208,7 @@ void Game()
 
             }
             if(!Loading){
+                //Tất cả grid.gImage đều load chung 1 ảnh nên chọn grid[0][0]
                 SDL_RenderCopy(gRenderer, grid[0][0].gImage, NULL, NULL);
                 SDL_RenderPresent(gRenderer);
                 SDL_Delay(3000);
@@ -274,6 +274,7 @@ void Game()
                 swap(grid[yMouse1][xMouse1].Count, grid[yMouse2][xMouse2].Count);
 
             }
+
             if(Lose_PlayAgain == true){
                 SDL_RenderCopy(gRenderer, lose, NULL, NULL);
                 if(e.type == SDL_MOUSEBUTTONDOWN)
@@ -313,7 +314,6 @@ void Game()
             }
             //Cập nhật màn hình
             SDL_RenderPresent( gRenderer );
-
         }
     }
     close(gWindow, gRenderer, gMusic, clicksound);
