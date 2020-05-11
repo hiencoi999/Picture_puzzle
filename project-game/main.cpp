@@ -197,24 +197,24 @@ void Game()
                 isSwap = false;
             }
             // Tạo ảnh loading nhấp nháy
-//            if(!Loading){
-//                //Cho nhạc chờ chạy 1 lần
-//                Mix_PlayMusic(gMusic, 1);
-//                //Ảnh nhấp nháy sẽ hiện ra cho đến khi nhạc chờ hết
-//                for(int i=0;Mix_PlayingMusic() == 1;i++){
-//                    SDL_SetTextureAlphaMod(loadingImage1, i);
-//                    SDL_SetTextureAlphaMod(loadingImage2, i);
-//                    if(i%2==0)
-//                        SDL_RenderCopy(gRenderer, loadingImage1, NULL, NULL);
-//                    else
-//                        SDL_RenderCopy(gRenderer, loadingImage2, NULL, NULL);
-//
-//
-//                    SDL_RenderPresent(gRenderer);
-//                    SDL_Delay(100);
-//                }
-//
-//            }
+            if(!Loading){
+                //Cho nhạc chờ chạy 1 lần
+                Mix_PlayMusic(gMusic, 1);
+                //Ảnh nhấp nháy sẽ hiện ra cho đến khi nhạc chờ hết
+                for(int i=0;Mix_PlayingMusic() == 1;i++){
+                    SDL_SetTextureAlphaMod(loadingImage1, i);
+                    SDL_SetTextureAlphaMod(loadingImage2, i);
+                    if(i%2==0)
+                        SDL_RenderCopy(gRenderer, loadingImage1, NULL, NULL);
+                    else
+                        SDL_RenderCopy(gRenderer, loadingImage2, NULL, NULL);
+
+
+                    SDL_RenderPresent(gRenderer);
+                    SDL_Delay(100);
+                }
+
+            }
             if(!Loading){
                 //Tất cả grid.gImage đều load chung 1 ảnh nên chọn grid[0][0]
                 SDL_RenderCopy(gRenderer, grid[0][0].gImage, NULL, NULL);
