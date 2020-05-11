@@ -40,7 +40,7 @@ bool init(SDL_Window* &gWindow, SDL_Renderer* &gRenderer)
         return success;
 }
 
-void close(SDL_Window* Window, SDL_Renderer* Renderer, Mix_Music* gMusic, Mix_Chunk* clicksound)
+void close(SDL_Window* Window, SDL_Renderer* Renderer, Mix_Music* gMusic, Mix_Music* winsound, Mix_Music* losesound, Mix_Chunk* clicksound)
 {
     //Free the music
     Mix_FreeMusic( gMusic );

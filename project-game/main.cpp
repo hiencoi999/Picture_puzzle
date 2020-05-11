@@ -27,6 +27,8 @@ SDL_Texture* lose = NULL;
 SDL_Texture* MoveCount = NULL;
 
 Mix_Music* gMusic = NULL;
+Mix_Music* winsound = NULL;
+Mix_Music* losesound = NULL;
 Mix_Chunk* clicksound = NULL;
 struct Images
 {
@@ -118,6 +120,12 @@ void LoadGame(){
     gMusic = Mix_LoadMUS("music//Twerk.wav");
     if(gMusic == NULL) cout << "Could not open music" << endl;
 
+    winsound = Mix_LoadMUS("music//winsound.mp3");
+    if(winsound == NULL) cout << "Cound not open winsound" << endl;
+
+    losesound = Mix_LoadMUS("music//losesound.mp3");
+    if(losesound == NULL) cout << "Cound not open losesound" << endl;
+
     clicksound = Mix_LoadWAV("music//click.wav");
     if(clicksound == NULL) cout << "Could not open clicksound" << endl;
 }
@@ -144,7 +152,7 @@ void CreateGame()
 
 void Game()
 {
-
+    bool once = false;
 
     bool quit = false, isSwap = false, Loading = false, Lose_PlayAgain = false, Win_PlayAgain = false;
     int xMouse, yMouse, xMouse1, yMouse1, xMouse2, yMouse2, click = 0;
@@ -189,24 +197,24 @@ void Game()
                 isSwap = false;
             }
             // Tạo ảnh loading nhấp nháy
-            if(!Loading){
-                //Cho nhạc chờ chạy 1 lần
-                Mix_PlayMusic(gMusic, 1);
-                //Ảnh nhấp nháy sẽ hiện ra cho đến khi nhạc chờ hết
-                for(int i=0;Mix_PlayingMusic() == 1;i++){
-                    SDL_SetTextureAlphaMod(loadingImage1, i);
-                    SDL_SetTextureAlphaMod(loadingImage2, i);
-                    if(i%2==0)
-                        SDL_RenderCopy(gRenderer, loadingImage1, NULL, NULL);
-                    else
-                        SDL_RenderCopy(gRenderer, loadingImage2, NULL, NULL);
-
-
-                    SDL_RenderPresent(gRenderer);
-                    SDL_Delay(100);
-                }
-
-            }
+//            if(!Loading){
+//                //Cho nhạc chờ chạy 1 lần
+//                Mix_PlayMusic(gMusic, 1);
+//                //Ảnh nhấp nháy sẽ hiện ra cho đến khi nhạc chờ hết
+//                for(int i=0;Mix_PlayingMusic() == 1;i++){
+//                    SDL_SetTextureAlphaMod(loadingImage1, i);
+//                    SDL_SetTextureAlphaMod(loadingImage2, i);
+//                    if(i%2==0)
+//                        SDL_RenderCopy(gRenderer, loadingImage1, NULL, NULL);
+//                    else
+//                        SDL_RenderCopy(gRenderer, loadingImage2, NULL, NULL);
+//
+//
+//                    SDL_RenderPresent(gRenderer);
+//                    SDL_Delay(100);
+//                }
+//
+//            }
             if(!Loading){
                 //Tất cả grid.gImage đều load chung 1 ảnh nên chọn grid[0][0]
                 SDL_RenderCopy(gRenderer, grid[0][0].gImage, NULL, NULL);
@@ -276,6 +284,10 @@ void Game()
             }
 
             if(Lose_PlayAgain == true){
+                if(!once){
+                    Mix_PlayMusic(losesound, 1);
+                    once = true;
+                }
                 SDL_RenderCopy(gRenderer, lose, NULL, NULL);
                 if(e.type == SDL_MOUSEBUTTONDOWN)
                 {
@@ -283,6 +295,7 @@ void Game()
                         if(e.button.x < 350 && e.button.y > 350)
                         {
                             Lose_PlayAgain = false;
+                            once = false;
                             CreateGame();
                             move_count = MAX_OF_SWAP;
                         }
@@ -294,6 +307,10 @@ void Game()
 
             }
             if(Win_PlayAgain == true){
+                if(!once){
+                    Mix_PlayMusic(winsound, 1);
+                    once = true;
+                }
                 SDL_RenderCopy(gRenderer, win, NULL, NULL);
                 if(e.type == SDL_MOUSEBUTTONDOWN)
                 {
@@ -301,6 +318,7 @@ void Game()
                         if(e.button.x < 350 && e.button.y > 350)
                         {
                             Win_PlayAgain = false;
+                            once = false;
                             CreateGame();
                             move_count = MAX_OF_SWAP;
                         }
@@ -316,5 +334,5 @@ void Game()
             SDL_RenderPresent( gRenderer );
         }
     }
-    close(gWindow, gRenderer, gMusic, clicksound);
+    close(gWindow, gRenderer, gMusic, winsound, losesound, clicksound);
 }
