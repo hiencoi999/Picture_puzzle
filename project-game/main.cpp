@@ -11,9 +11,7 @@
 using namespace std;
 
 const int SPACE = 50;
-const int NUM_OF_ROWS = 5;
-const int NUM_OF_COLS = 5;
-const int MAX_OF_SWAP = 25;
+const int MAX_OF_SWAP = 40;
 
 SDL_Window* gWindow = NULL;
 SDL_Renderer* gRenderer = NULL;
@@ -23,6 +21,7 @@ SDL_Texture* loadingImage1 = NULL;
 SDL_Texture* loadingImage2 = NULL;
 SDL_Texture* background = NULL;
 SDL_Texture* win = NULL;
+SDL_Texture* win2 = NULL;
 SDL_Texture* lose = NULL;
 SDL_Texture* MoveCount = NULL;
 
@@ -36,33 +35,33 @@ struct Images
     int x;
     int y;
     int Count;
-}grid[NUM_OF_ROWS][NUM_OF_COLS];
+}grid[6][6];
 
 //Hàm load game
 void LoadGame();
+
 //Hàm tạo game với các ảnh đã được đánh tráo
-void CreateGame();
+void CreateGame(int NUM_OF_ROWS, int NUM_OF_COLS, int SIZE_1_GRID);
 
 //Hàm thực hiện nội dung chính của game
-void Game();
+void Game(int NUM_OF_ROWS, int NUM_OF_COLS, int SIZE_1_GRID);
 
 
 int main(int argc, char* argv[])
 {
     srand(time(0));
-    SDL_Event e1;
+    SDL_Event e;
     //Vòng lặp game
     if(init(gWindow, gRenderer) == NULL)
         return 0;
     else {
         //Khởi tạo các hình ảnh và tạo game
         LoadGame();
-        CreateGame();
 
         while(1){
 
-            while(SDL_PollEvent( &e1 ) != 0){
-            if( e1.type == SDL_QUIT )
+            while(SDL_PollEvent( &e ) != 0){
+            if( e.type == SDL_QUIT )
                     {
                         return 0;
                     }
@@ -73,28 +72,35 @@ int main(int argc, char* argv[])
             SDL_RenderPresent(gRenderer);
 
 
-            if(e1.type == SDL_MOUSEBUTTONDOWN){
+            if(e.type == SDL_MOUSEBUTTONDOWN){
 
-                if(e1.button.button == SDL_BUTTON_LEFT)
-                    Game();
+                if(e.button.button == SDL_BUTTON_LEFT)
+                {
+                    if(e.button.y < 200)
+                    {
+                        CreateGame(4,4,150);
+                        Game(4,4,150);
+                    }
+                    if(e.button.y > 200 && e.button.y < 400)
+                    {
+                        CreateGame(5,5,120);
+                        Game(5,5,120);
+                    }
+                    if(e.button.y > 400)
+                    {
+                        CreateGame(6,6,100);
+                        Game(6,6,100);
+                    }
+
+                }
+
             }
         }
     }
 }
 
 void LoadGame(){
-    int tmp = 0;
-    //Load ảnh và tạo blendmode cho ảnh
-    for(int i=0;i<NUM_OF_ROWS;i++){
-        for(int j=0;j<NUM_OF_COLS;j++){
-            grid[i][j].gImage = loadTexture("images//game.jpg", gRenderer);
-            grid[i][j].x = j*SIZE_1_GRID;
-            grid[i][j].y = i*SIZE_1_GRID;
-            grid[i][j].Count = tmp;// Lưu tmp của 16 hình ảnh vào mảng Count dùng để kiểm tra xem nếu người chơi win game
-            SDL_SetTextureBlendMode(grid[i][j].gImage, SDL_BLENDMODE_BLEND);
-            tmp++;
-        }
-    }
+
     //Load 2 ảnh menu để tạo hiệu ứng nhấp nháy
     loadingImage1 = loadTexture("images//load.png", gRenderer);
     SDL_SetTextureBlendMode(loadingImage1, SDL_BLENDMODE_BLEND);
@@ -102,14 +108,14 @@ void LoadGame(){
     SDL_SetTextureBlendMode(loadingImage2, SDL_BLENDMODE_BLEND);
 
     //Load ảnh menu
-    gMenu = loadTexture("images//menu.jpg", gRenderer);
+    gMenu = loadTexture("images//gMenu.png", gRenderer);
 
     //Load background
     background = loadTexture("images//bg2.png", gRenderer);
 
     //Load ảnh khi thắng game
     win = loadTexture("images//win.png", gRenderer);
-
+    win2 = loadTexture("images//win2.png", gRenderer);
     //Load ảnh khi thua
     lose = loadTexture("images//lose.png", gRenderer);
 
@@ -130,8 +136,21 @@ void LoadGame(){
     if(clicksound == NULL) cout << "Could not open clicksound" << endl;
 }
 
-void CreateGame()
+void CreateGame(int NUM_OF_ROWS, int NUM_OF_COLS, int SIZE_1_GRID)
 {
+    int tmp = 0;
+    //Load ảnh và tạo blendmode cho ảnh
+    for(int i=0;i<NUM_OF_ROWS;i++){
+        for(int j=0;j<NUM_OF_COLS;j++){
+            grid[i][j].gImage = loadTexture("images//game.jpg", gRenderer);
+            grid[i][j].x = j*SIZE_1_GRID;
+            grid[i][j].y = i*SIZE_1_GRID;
+            grid[i][j].Count = tmp;// Lưu tmp của 16 hình ảnh vào mảng Count dùng để kiểm tra xem nếu người chơi win game
+            SDL_SetTextureBlendMode(grid[i][j].gImage, SDL_BLENDMODE_BLEND);
+            tmp++;
+        }
+    }
+
     //Tráo đổi ảnh ngẫu nhiên(đồng thời phải tráo đổi cả Count)
     for(int i=0;i<NUM_OF_ROWS;i++){
         for(int j=0;j<NUM_OF_COLS;j++){
@@ -150,10 +169,9 @@ void CreateGame()
     }
 }
 
-void Game()
+void Game(int NUM_OF_ROWS, int NUM_OF_COLS, int SIZE_1_GRID)
 {
-    bool once = false;
-
+    bool once = false, temp = false;
     bool quit = false, isSwap = false, Loading = false, Lose_PlayAgain = false, Win_PlayAgain = false;
     int xMouse, yMouse, xMouse1, yMouse1, xMouse2, yMouse2, click = 0;
     bool isWin;
@@ -197,24 +215,23 @@ void Game()
                 isSwap = false;
             }
             // Tạo ảnh loading nhấp nháy
-            if(!Loading){
-                //Cho nhạc chờ chạy 1 lần
-                Mix_PlayMusic(gMusic, 1);
-                //Ảnh nhấp nháy sẽ hiện ra cho đến khi nhạc chờ hết
-                for(int i=0;Mix_PlayingMusic() == 1;i++){
-                    SDL_SetTextureAlphaMod(loadingImage1, i);
-                    SDL_SetTextureAlphaMod(loadingImage2, i);
-                    if(i%2==0)
-                        SDL_RenderCopy(gRenderer, loadingImage1, NULL, NULL);
-                    else
-                        SDL_RenderCopy(gRenderer, loadingImage2, NULL, NULL);
-
-
-                    SDL_RenderPresent(gRenderer);
-                    SDL_Delay(100);
-                }
-
-            }
+//            if(!Loading){
+//                //Cho nhạc chờ chạy 1 lần
+//                Mix_PlayMusic(gMusic, 1);
+//                //Ảnh nhấp nháy sẽ hiện ra cho đến khi nhạc chờ hết
+//                for(int i=0;Mix_PlayingMusic() == 1;i++){
+//                    SDL_SetTextureAlphaMod(loadingImage1, i);
+//                    SDL_SetTextureAlphaMod(loadingImage2, i);
+//                    if(i%2==0)
+//                        SDL_RenderCopy(gRenderer, loadingImage1, NULL, NULL);
+//                    else
+//                        SDL_RenderCopy(gRenderer, loadingImage2, NULL, NULL);
+//
+//
+//                    SDL_RenderPresent(gRenderer);
+//                    SDL_Delay(100);
+//                }
+//            }
             if(!Loading){
                 //Tất cả grid.gImage đều load chung 1 ảnh nên chọn grid[0][0]
                 SDL_RenderCopy(gRenderer, grid[0][0].gImage, NULL, NULL);
@@ -270,11 +287,11 @@ void Game()
             SDL_RenderCopy(gRenderer, background, NULL, NULL);
             for(int i=0;i<NUM_OF_ROWS;i++){
                 for(int j=0;j<NUM_OF_COLS;j++){
-                    ApplyTexture(gRenderer, grid[i][j].gImage, grid[i][j].x, grid[i][j].y, j*SIZE_1_GRID+SPACE, i*SIZE_1_GRID+SPACE);
+                    ApplyTexture(gRenderer, grid[i][j].gImage, SIZE_1_GRID, grid[i][j].x, grid[i][j].y, j*SIZE_1_GRID+SPACE, i*SIZE_1_GRID+SPACE);
                 }
             }
 
-            ApplyMoveCount(gRenderer, MoveCount, move_count*20);
+            ApplyMoveCount(gRenderer, MoveCount, move_count*10);
 
             if(isSwap){
                 swap(grid[yMouse1][xMouse1].x, grid[yMouse2][xMouse2].x);
@@ -296,7 +313,7 @@ void Game()
                         {
                             Lose_PlayAgain = false;
                             once = false;
-                            CreateGame();
+                            CreateGame(NUM_OF_ROWS, NUM_OF_COLS, SIZE_1_GRID);
                             move_count = MAX_OF_SWAP;
                         }
                         if(e.button.x >350 && e.button.y > 350){
@@ -306,21 +323,65 @@ void Game()
                 }
 
             }
-            if(Win_PlayAgain == true){
+            else if(Win_PlayAgain == true){
                 if(!once){
                     Mix_PlayMusic(winsound, 1);
                     once = true;
                 }
-                SDL_RenderCopy(gRenderer, win, NULL, NULL);
+                if(!temp)
+                    SDL_RenderCopy(gRenderer, win, NULL, NULL);
+                else
+                {
+                    SDL_RenderCopy(gRenderer, win2, NULL, NULL);
+                    if(e.type == SDL_MOUSEBUTTONDOWN)
+                    {
+
+                        if(e.button.button == SDL_BUTTON_LEFT ){
+                            if(e.button.x < 350 && e.button.y > 350 && e.button.y < 350+350/3)
+                            {
+                                Win_PlayAgain = false;
+                                once = false;
+                                NUM_OF_ROWS = 4;
+                                NUM_OF_COLS = 4;
+                                SIZE_1_GRID = 600/NUM_OF_ROWS;
+                                CreateGame(NUM_OF_ROWS, NUM_OF_COLS, SIZE_1_GRID);
+                                move_count = MAX_OF_SWAP;
+                            }
+                            if(e.button.x < 350 && e.button.y > 350+350/3 && e.button.y < 350+700/3)
+                            {
+                                Win_PlayAgain = false;
+                                once = false;
+                                NUM_OF_ROWS = 5;
+                                NUM_OF_COLS = 5;
+                                SIZE_1_GRID = 600/NUM_OF_ROWS;
+                                CreateGame(NUM_OF_ROWS, NUM_OF_COLS, SIZE_1_GRID);
+                                move_count = MAX_OF_SWAP;
+                            }
+                            if(e.button.x < 350 && e.button.y > 350+700/3)
+                            {
+
+                                Win_PlayAgain = false;
+                                once = false;
+                                NUM_OF_ROWS = 6;
+                                NUM_OF_COLS = 6;
+                                SIZE_1_GRID = 600/NUM_OF_ROWS;
+                                CreateGame(NUM_OF_ROWS, NUM_OF_COLS, SIZE_1_GRID);
+                                move_count = MAX_OF_SWAP;
+                            }
+                            if(e.button.x > 350 && e.button.y > 350){
+                                quit = true;
+                            }
+
+                        }
+                    }
+                }
                 if(e.type == SDL_MOUSEBUTTONDOWN)
                 {
+
                     if(e.button.button == SDL_BUTTON_LEFT ){
                         if(e.button.x < 350 && e.button.y > 350)
                         {
-                            Win_PlayAgain = false;
-                            once = false;
-                            CreateGame();
-                            move_count = MAX_OF_SWAP;
+                            temp = true;
                         }
                         if(e.button.x > 350 && e.button.y > 350){
                             quit = true;
@@ -328,8 +389,8 @@ void Game()
 
                     }
                 }
-
             }
+
             //Cập nhật màn hình
             SDL_RenderPresent( gRenderer );
         }

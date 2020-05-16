@@ -1,6 +1,33 @@
 #include "Texture.h"
 
-void ApplyTexture(SDL_Renderer* renderer, SDL_Texture* texture, int _x1, int _y1, int _x2, int _y2)
+SDL_Texture* loadTexture( std::string path , SDL_Renderer* &gRenderer)
+{
+    //The final texture
+    SDL_Texture* newTexture = NULL;
+
+    //Load image at specified path
+    SDL_Surface* loadedSurface = IMG_Load( path.c_str() );
+    if( loadedSurface == NULL )
+    {
+        cout << "Unable to load image "<< path.c_str() << endl;
+    }
+    else
+    {
+        //Create texture from surface pixels
+        newTexture = SDL_CreateTextureFromSurface( gRenderer, loadedSurface );
+        if( newTexture == NULL )
+        {
+            cout << "Unable to create texture from " << path.c_str() << endl;
+        }
+
+        //Get rid of old loaded surface
+        SDL_FreeSurface( loadedSurface );
+    }
+
+    return newTexture;
+}
+
+void ApplyTexture(SDL_Renderer* renderer, SDL_Texture* texture, int SIZE_1_GRID, int _x1, int _y1, int _x2, int _y2)
 {
     SDL_Rect Src;
     SDL_Rect Dest;
@@ -28,7 +55,7 @@ void ApplyMoveCount(SDL_Renderer* renderer, SDL_Texture* texture, int _w)
     Src.w = 500;
     Src.h = 25;
 
-    Dest.x = 120;
+    Dest.x = 155;
     Dest.y = 665;
     Dest.w = _w;
     Dest.h = 25;
@@ -36,29 +63,4 @@ void ApplyMoveCount(SDL_Renderer* renderer, SDL_Texture* texture, int _w)
     SDL_RenderCopy(renderer, texture, &Src, &Dest);
 }
 
-SDL_Texture* loadTexture( std::string path , SDL_Renderer* &gRenderer)
-{
-    //The final texture
-    SDL_Texture* newTexture = NULL;
 
-    //Load image at specified path
-    SDL_Surface* loadedSurface = IMG_Load( path.c_str() );
-    if( loadedSurface == NULL )
-    {
-        cout << "Unable to load image "<< path.c_str() << endl;
-    }
-    else
-    {
-        //Create texture from surface pixels
-        newTexture = SDL_CreateTextureFromSurface( gRenderer, loadedSurface );
-        if( newTexture == NULL )
-        {
-            cout << "Unable to create texture from " << path.c_str() << endl;
-        }
-
-        //Get rid of old loaded surface
-        SDL_FreeSurface( loadedSurface );
-    }
-
-    return newTexture;
-}
