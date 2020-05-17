@@ -274,8 +274,11 @@ void Game(int NUM_OF_ROWS, int NUM_OF_COLS, int SIZE_1_GRID)
                             yMouse2=(yMouse-SPACE)/SIZE_1_GRID;
                             cout << xMouse2 << " " << yMouse2 << endl;
                             click = 0;
-                            move_count--;
-                            isSwap = true;
+                            if(xMouse1 != xMouse2 || yMouse1 != yMouse2)
+                            {
+                                isSwap = true;
+                            }
+
                         }
                     }
 
@@ -294,6 +297,7 @@ void Game(int NUM_OF_ROWS, int NUM_OF_COLS, int SIZE_1_GRID)
             ApplyMoveCount(gRenderer, MoveCount, move_count*10);
 
             if(isSwap){
+                move_count--;
                 swap(grid[yMouse1][xMouse1].x, grid[yMouse2][xMouse2].x);
                 swap(grid[yMouse1][xMouse1].y, grid[yMouse2][xMouse2].y);
                 swap(grid[yMouse1][xMouse1].Count, grid[yMouse2][xMouse2].Count);
