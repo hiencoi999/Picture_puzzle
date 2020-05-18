@@ -1,25 +1,5 @@
 # depslib dependency file v1.0
-1586834454 source:d:\project-game\main.cpp
-	<iostream>
-	<stdio.h>
-	<SDL.h>
-	<string>
-	<SDL_image.h>
-	<vector>
-	<ctime>
-	<thread>
-	<chrono>
-
-1589640485 source:d:\picturepuzzle\project-game\texture.cpp
-	"Texture.h"
-
-1589640485 d:\picturepuzzle\project-game\texture.h
-	<SDL.h>
-	<iostream>
-	<SDL_image.h>
-	<string>
-
-1589731159 source:d:\picturepuzzle\project-game\main.cpp
+1589784442 source:d:\picturepuzzle\project-game\main.cpp
 	<iostream>
 	<SDL.h>
 	<string>
@@ -30,11 +10,20 @@
 	"Texture.h"
 	"Window.h"
 
+1589640485 d:\picturepuzzle\project-game\texture.h
+	<SDL.h>
+	<iostream>
+	<SDL_image.h>
+	<string>
+
 1589640485 d:\picturepuzzle\project-game\window.h
 	<iostream>
 	<SDL.h>
 	<SDL_image.h>
 	<SDL_mixer.h>
+
+1589640485 source:d:\picturepuzzle\project-game\texture.cpp
+	"Texture.h"
 
 1589182127 source:d:\picturepuzzle\project-game\window.cpp
 	"Window.h"
